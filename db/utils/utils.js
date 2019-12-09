@@ -1,4 +1,6 @@
-exports.formatDates = list => {};
+exports.formatDates = list => {
+    return list.map( item => new Date(item));
+};
 
 exports.makeRefObj = list => {};
 
