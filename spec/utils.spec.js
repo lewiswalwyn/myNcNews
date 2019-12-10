@@ -31,10 +31,51 @@ describe('formatDates', () => {
   });
 });
 
-// describe('makeRefObj', () => {
-//   it('returns an object', () => {
-//     expect([{}]).to.be.an('object')
-//   });
-// });
+describe('makeRefObj', () => {
+  it('returns an object', () => {
+    expect(makeRefObj([{}])).to.be.an('object')
+  });
+  it('Returns a reference object with key from title and value from article_id', () => {
+    const input = [{ article_id: 1, title: 'A' }];
+    const expected = { A: 1 };
+    expect(makeRefObj(input)).to.deep.equal(expected)
+  });
+});
 
-describe('formatComments', () => {});
+describe('formatComments', () => {
+  it('returns an array', () => {
+    expect(formatComments([])).to.be.an('array')
+    const input = [{
+      body: 'Itaque quisquam est similique et est perspiciatis reprehenderit voluptatem autem. Voluptatem accusantium eius error adipisci quibusdam doloribus.',
+      belongs_to: 'A',
+      created_by: 'tickle122',
+      votes: -1,
+      created_at: 1468087638932,
+    }];
+    const ref = {A:1}
+    expect(formatComments(input, ref)).to.be.an('array')
+  });
+  it('Changes data and keys into correct format', () => {
+    const input = [{
+      body: 'bag',
+      belongs_to: 'canal',
+      created_by: 'tickle122',
+      votes: -1,
+      created_at: 1468087638932,
+    }, {
+      body: 'high',
+      belongs_to: 'blessed',
+      created_by: 'chump',
+      votes: 9000,
+      created_at: 1478813209256,
+    }];
+    const refObj = {canal: 1, blessed: 2}
+    expect(formatComments(input, refObj)[0]).to.have.keys("author", "article_id", "body", "created_at", "votes")
+    expect(formatComments(input, refObj)[0]['author']).to.equal(input[0]['created_by'])
+    expect(formatComments(input, refObj)[0]['article_id']).to.equal(refObj['canal'])
+    expect(formatComments(input, refObj)[0]['body']).to.equal(input[0]['body'])
+    expect(formatComments(input, refObj)[0]['created_at']).to.be.a("Date")
+    expect(formatComments(input, refObj)[0]['votes']).to.equal(input[0]['votes'])
+    console.log(formatComments(input, refObj)[0]['author'])
+  });
+});
