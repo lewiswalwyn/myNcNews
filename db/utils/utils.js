@@ -25,7 +25,6 @@ exports.formatComments = (comments, articleRef) => {
         formattedComment.author = comment.created_by;
         formattedComment.article_id = articleRef[comment.belongs_to];
         formattedComment.created_at = new Date(comment.created_at);
-
         formattedComment.body = comment.body;
         formattedComment.votes = comment.votes
         

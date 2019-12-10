@@ -73,6 +73,7 @@ describe('formatComments', () => {
     expect(formatComments(input, refObj)[0]).to.have.keys("author", "article_id", "body", "created_at", "votes")
     expect(formatComments(input, refObj)[0]['author']).to.equal(input[0]['created_by'])
     expect(formatComments(input, refObj)[0]['article_id']).to.equal(refObj['canal'])
+    expect(formatComments(input, refObj)[1]['article_id']).to.equal(refObj['blessed'])
     expect(formatComments(input, refObj)[0]['body']).to.equal(input[0]['body'])
     expect(formatComments(input, refObj)[0]['created_at']).to.be.a("Date")
     expect(formatComments(input, refObj)[0]['votes']).to.equal(input[0]['votes'])

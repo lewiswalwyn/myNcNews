@@ -4,11 +4,12 @@ const apiRouter = require("./routes/apiRouter")
 
 app.use("/api", apiRouter);
 
-//error handler
+//error handling
 app.use(function(err, req, res, next) {
-    console.log("in error handler")
-    console.log(err)
-    res.status(500).send({ msg: "BUMBACLART"})
+    if(err.status === 400) res.status(err.status).send({ msg: err.msg })
+
+    //FINAL SERVER ERROR
+    res.status(500).send({ msg: "I'M A BUMBACLART"})
 });
 
 module.exports = app;
