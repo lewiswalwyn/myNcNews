@@ -14,6 +14,10 @@ const miscErrorHandler = function(err, req, res, next) {
     else next(err)
 }
 
+const methodErrorHandler = function(req, res, next) {
+    res.status(405).send({ msg: "Method not found"})
+}
+
 const baseErrorHandler = function(err, req, res, next) {
     console.log("IN FINAL SERVER ERROR!!!")
     console.log(err);
@@ -21,4 +25,4 @@ const baseErrorHandler = function(err, req, res, next) {
     res.status(500).send({ msg: "BUMBACLART"})
 }
 
-module.exports = { psqlErrorHandler, baseErrorHandler, miscErrorHandler }
+module.exports = { psqlErrorHandler, baseErrorHandler, miscErrorHandler, methodErrorHandler }

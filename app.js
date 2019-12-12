@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/apiRouter")
-const { psqlErrorHandler, baseErrorHandler, miscErrorHandler } = require("./errorHandler")
+const { psqlErrorHandler, baseErrorHandler, miscErrorHandler, methodErrorHandler } = require("./errorHandler")
 
 app.use(express.json());
 

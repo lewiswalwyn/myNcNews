@@ -8,7 +8,6 @@ chai.use(chaiSorted);
 const app = require('../app')
 
 describe('/api', () => {
-
     beforeEach(() => connection.seed.run());
     after(() => connection.destroy());
 
@@ -31,6 +30,11 @@ describe('/api', () => {
             .get('/api/tRopics')
             .expect(404)
         });
+        it('ERROR - PATCH 405 method not allowed', () => {
+            return request(app)
+            .patch('/api/topics')
+            .expect(405)
+        })
     });
     describe('/users', () => {
         describe('/api/users/:username', () => {
@@ -45,12 +49,12 @@ describe('/api', () => {
                     expect(Object.keys(output.body).length).to.equal(1)
                 })
             });
-            it('GET: 400 if username does not exist', () => {
+            it('GET: 404 if username does not exist', () => {
                 return request(app)
                 .get('/api/users/bumbaclart')
-                .expect(400)
+                .expect(404)
                 .then(error => {
-                    expect(error.status).to.equal(400)
+                    expect(error.status).to.equal(404)
                     expect(error.body.msg).to.equal('username not found')
                 })
             })
@@ -62,6 +66,11 @@ describe('/api', () => {
                     expect(error.status).to.equal(404)
                 })
             })
+            it('ERROR - PUT 405 method not found', () => {
+                return request(app)
+                .put("/api/users/butter_bridge")
+                .expect(405)
+            });
         });
     });
 
@@ -76,7 +85,7 @@ describe('/api', () => {
                     expect(output.body.article).to.be.an('object')
                     expect(output.body.article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count')
                     expect(Object.keys(output.body).length).to.equal(1)
-                    expect(output.body.article.comment_count).to.be.a('number')
+                    expect(output.body.article.comment_count).to.be.a('string')
                 });
             });
             it('PATCH:200 accepts an object { incVotes : newVote } where newVote is a number that will inc or dec votes property', () => {
@@ -139,6 +148,16 @@ describe('/api', () => {
                     expect(output.body.comments).to.be.ascendingBy("created_at")
                 })  
             });
+            it('ERROR - PUT 405 method not found', () => {
+                return request(app)
+                .put("/api/articles/1")
+                .expect(405)
+            });
+            it('ERROR - PUT 405 method not found', () => {
+                return request(app)
+                .put("/api/articles/1/comments")
+                .expect(405)
+            });
         });
         describe('/api/articles', () => {
             it('GET: 200 responds with full array of articles (minus body) including comment count', () => {
@@ -189,9 +208,17 @@ describe('/api', () => {
                     })
                 })
             });
+            it('GET: 200 returns empty array when topic exists but has no articles', () => {
+                return request(app)
+                .get("/api/articles?author=lurker")
+                .expect(200)
+                .then(output => {
+                    expect(output.body).to.deep.equal([])
+                })
+            });
         });
         //////////////
-        describe('/api/articles ERRORS... ish', () => {
+        describe('/api/articles ERRORS...', () => {
             it('GET 200 author + topic exist but author has no articles on the topic', () => {
                 return request(app)
                 .get('/api/articles?author=butter_bridge&topic=cats')
@@ -216,6 +243,23 @@ describe('/api', () => {
                     expect(output.body.msg).to.equal('Author not found')
                 })
             })
+            it('ERROR - PATCH 405 method not allowed', () => {
+                return request(app)
+                .patch("/api/articles")
+                .expect(405)
+            });
+            //////BELOW IS A HOT MESS
+            it('ERROR - GET 404 non-existent topic', () => {
+                return request(app)
+                .get("/api/articles?topic=not-a-topic")
+                .expect(404)
+            });
+
+            // it.only('ERROR - GET 404 valid article id but does not exist', () => {
+            //     return request(app)
+            //     .get("/api/articles/1000")
+            //     .expect(404)
+            // });
         });
     });
     describe('/api/comments', () => {
@@ -245,6 +289,11 @@ describe('/api', () => {
                     })
                 })
             })
+            it('ERROR - PUT 405 method not found', () => {
+                return request(app)
+                .put("/api/comments/1")
+                .expect(405)
+            });
         });
     });
 });

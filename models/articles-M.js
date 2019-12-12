@@ -15,7 +15,7 @@ const fetchArticleByID = function(id) {
         .returning("*")
         .where("article_id", "=", id.article_id)
         .then(comments => {
-            foundArticle[0].comment_count = comments.length
+            foundArticle[0].comment_count = comments.length.toString()
             return foundArticle
         })
     })
@@ -73,44 +73,18 @@ const fetchArticles = function(sort_by, order, author, topic) {
       })
     .orderBy(sort_by || "created_at", order || "desc")
     .then( articles => {
-
 /////
 
         if (!articles.length) { 
+
             return checkAuthorAndTopicExist(author, topic)
         }
         else return articles
         })
 }
 
-/////
-
-//         if (!articles.length) { 
-//             return checkTopicExists(topic)
-//         }
-//         else return articles
-//         })
-// }
-
-/////
-
-
-// const checkTopicExists = function(topic) {
-//     return connection
-//     .select("*")
-//     .from("topics")
-//     .where("slug", "=", topic)
-//     .then(topics => {
-//         if (!topics.length) {
-//             return Promise.reject({ status: 404, msg: "Topic not found" })
-//         } else { 
-//             return []
-//         }
-//     })
-// }
-
 const checkAuthorAndTopicExist = function(author, topic) {
-    
+
     if(author) {
         return connection
         .select("*")
@@ -119,7 +93,21 @@ const checkAuthorAndTopicExist = function(author, topic) {
         .then(authors => {
             if (!authors.length) {
                 return Promise.reject({ status: 404, msg: "Author not found" })
-            }
+            } else if(topic) {
+                return connection
+                .select("*")
+                .from("topics")
+                .where("slug", "=", topic)
+                .then(topics => {
+                    if (!topics.length) {
+                        return Promise.reject({ status: 404, msg: "Topic not found" })
+                    } else { 
+                        return []
+                    }
+                })
+                }
+        }
+    )} ///// LOOOOOOOOOL but it works tho
     else if(topic) {
         return connection
         .select("*")
@@ -132,9 +120,8 @@ const checkAuthorAndTopicExist = function(author, topic) {
                 return []
             }
         })
-    }
+        }
 }
-        )}}
 module.exports = { 
     fetchArticleByID, 
     updateArticleVotes, 

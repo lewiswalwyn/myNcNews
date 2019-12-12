@@ -49,7 +49,8 @@ const getArticles = function(req, res, next) {
 
     fetchArticles(sort_by, order, author, topic)
     .then(articles => {
-        if (articles.length < 1) res.status(200).send({ articles })
+        if (!articles) res.status(200).send( [] )
+        else if (articles.length < 1) res.status(200).send({ articles })
         else res.status(200).send({articles})
     })
     .catch(next)
