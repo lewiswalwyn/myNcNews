@@ -11,6 +11,11 @@ describe('/api', () => {
     beforeEach(() => connection.seed.run());
     after(() => connection.destroy());
 
+    it('ERROR - DELETE 405 method not found', () => {
+        return request(app)
+        .delete("/api")
+        .expect(405)
+    });
     describe('/topics', () => {
         it('GET:200 serves all topics' , () => {
             return request(app)
@@ -88,8 +93,8 @@ describe('/api', () => {
                     expect(output.body.article.comment_count).to.be.a('string')
                 });
             });
-            it('PATCH:200 accepts an object { incVotes : newVote } where newVote is a number that will inc or dec votes property', () => {
-                const upvote = { incVotes : 1000 }
+            it('PATCH:200 accepts an object { inc_votes : newVote } where newVote is a number that will inc or dec votes property', () => {
+                const upvote = { inc_votes : 1000 }
                 return request(app)
                 .patch('/api/articles/1')
                 .send(upvote)
@@ -99,7 +104,7 @@ describe('/api', () => {
                 })
             });
             it('PATCH:200 same as above but decreases votes with negative numbers', () => {
-                const upvote = { incVotes : -1000 }
+                const upvote = { inc_votes : -1000 }
                 return request(app)
                 .patch('/api/articles/1')
                 .send(upvote)
@@ -153,10 +158,50 @@ describe('/api', () => {
                 .put("/api/articles/1")
                 .expect(405)
             });
+            it('ERROR - PATCH 400 invalid inc_votes value', () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({ inc_votes: "no"})
+                .expect(400)
+            });
+            it('ERROR - PATCH ignore request with no info in body', () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .then(output => {
+                    expect(output.body.article.votes).to.equal(100)
+                })
+            });
             it('ERROR - PUT 405 method not found', () => {
                 return request(app)
                 .put("/api/articles/1/comments")
                 .expect(405)
+            });
+            it('ERROR - GET 400 invalid article_id', () => {
+                return request(app)
+                .get("/api/articles/not-a-valid-id/comments")
+                .expect(400)
+            });
+            it('ERROR - POST 400 invalid article_id', () => {
+                return request(app)
+                .post("/api/articles/not-a-valid-id/comments")
+                .expect(400)
+            });
+            it('ERROR - GET 404 valid but non existent article_id', () => {
+                return request(app)
+                .get("/api/articles/10000/comments")
+                .expect(404)
+            });
+            it('ERROR - POST 400 valid but non existent article_id', () => {
+                return request(app)
+                .post("/api/articles/10000/comments")
+                .expect(400)
+            });
+            it('ERROR - POST 400 request does not include all required keys', () => {
+                const myComment = { username: "butter_bridge" }
+                return request(app)
+                .post('/api/articles/1/comments')
+                .send(myComment)
+                .expect(400)
             });
         });
         describe('/api/articles', () => {
@@ -243,6 +288,13 @@ describe('/api', () => {
                     expect(output.body.msg).to.equal('Author not found')
                 })
             })
+
+            // it('ERROR - GET 400 - invalid sort by column', () => {
+            //     return request(app)
+            //     .get('/api/articles/1/comments?sort_by=not-a-valid-column')
+            //     .expect(400)
+            // });
+
             it('ERROR - PATCH 405 method not allowed', () => {
                 return request(app)
                 .patch("/api/articles")
@@ -254,24 +306,59 @@ describe('/api', () => {
                 .get("/api/articles?topic=not-a-topic")
                 .expect(404)
             });
-
-            // it.only('ERROR - GET 404 valid article id but does not exist', () => {
-            //     return request(app)
-            //     .get("/api/articles/1000")
-            //     .expect(404)
-            // });
+            it('ERROR - GET 404 valid article id but does not exist', () => {
+                return request(app)
+                .get("/api/articles/1000")
+                .expect(404)
+            });
+            it('ERROR - GET 400 bad request if article id type is invalid e.g a string', () => {
+                return request(app)
+                .get("/api/articles/dog")
+                .expect(400)
+            });
         });
     });
     describe('/api/comments', () => {
         describe('/api/comments/:comment_id', () => {
-            it('PATCH:200 accepts an object { incVotes : newVote } where newVote is a number that will inc or dec votes property', () => {
-                const upvote = { incVotes : 10000 }
+            it('PATCH:200 accepts an object { inc_votes : newVote } where newVote is a number that will inc or dec votes property', () => {
+                const upvote = { inc_votes : 10000 }
                 return request(app)
                 .patch('/api/comments/3')
                 .send(upvote)
                 .expect(200)
                 .then(output => {
                     expect(output.body.comment.votes).to.equal(10100)
+                })
+            });
+            it('ERROR PATCH 400 bad request when sent invalid inc_votes value', () => {
+                const upvote = { inc_votes : "no" }
+                return request(app)
+                .patch('/api/comments/3')
+                .send(upvote)
+                .expect(400)
+            });
+            it('ERROR PATCH 400 not a valid comment_id', () => {
+                const upvote = { inc_votes : 10000 }
+                return request(app)
+                .patch('/api/comments/not-valid')
+                .send(upvote)
+                .expect(400)
+            });
+            it('ERROR PATCH 404 valid comment_id but does not exist', () => {
+                const upvote = { inc_votes : 10000 }
+                return request(app)
+                .patch('/api/comments/1000')
+                .send(upvote)
+                .expect(404)
+            });
+            it('PATCH 200: OK when sent body with no inc_votes property, returns unchanged comment', () => {
+                const noVote = {}
+                return request(app)
+                .patch('/api/comments/1')
+                .send(noVote)
+                .expect(200)
+                .then(output => {
+                    expect(output.body.comment.votes).to.equal(16)
                 })
             });
             it('DELETE: 204 deletes comment at :comment_id', () => {
@@ -293,6 +380,16 @@ describe('/api', () => {
                 return request(app)
                 .put("/api/comments/1")
                 .expect(405)
+            });
+            it('ERROR - DELETE 400 if comment id NaN', () => {
+                return request(app)
+                .delete("/api/comments/not-a-number")
+                .expect(400)
+            });
+            it('ERROR - DELETE 404 valid id but does not exist', () => {
+                return request(app)
+                .delete("/api/comments/1000")
+                .expect(404)
             });
         });
     });

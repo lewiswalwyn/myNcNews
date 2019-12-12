@@ -1,6 +1,8 @@
 const psqlErrorHandler = function(err, req, res, next) {
     const psqlCodes = {
-        "42703": { status: 404, msg: "Topic not found"}
+        "42703": { status: 404, msg: "Topic not found"},
+        "22P02": { status: 400, msg: "Bad Request" },
+        "23502": { status: 422, msg: "Article does not exist" }
     }
     const currentError = psqlCodes[err.code]
 

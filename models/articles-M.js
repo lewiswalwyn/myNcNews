@@ -1,13 +1,16 @@
 const connection = require("../db/connection")
 
 const fetchArticleByID = function(id) {
-
+    if(typeof(+id) !== "number"){}
+    else {
     return connection
     .select("*")
     .from("articles")
     .returning("*")
     .where("article_id", "=", id.article_id)
     .then(article => {
+        if(!article.length) return Promise.reject({ status: 404, msg: "Article not found" });
+        else{
         const foundArticle = article;
         return connection
         .select("*")
@@ -17,8 +20,10 @@ const fetchArticleByID = function(id) {
         .then(comments => {
             foundArticle[0].comment_count = comments.length.toString()
             return foundArticle
-        })
+            })
+        }
     })
+    }
 }
 
 const updateArticleVotes = function(upvote, id) {
@@ -28,14 +33,16 @@ const updateArticleVotes = function(upvote, id) {
     .from("articles")
     .returning("*")
     .where("article_id", "=", id.article_id)
-    .increment("votes", upvote.incVotes)
+    .increment("votes", upvote.inc_votes || 0)
     .then(updatedArticle => {
         return updatedArticle
     });
 }
 
 const insertComment = function(myComment, articleID) {
-    
+    if(!myComment.username || !myComment.body) {
+        return Promise.reject({ status: 400, msg: "Missing required field/s" })
+    }
     //formats comment without mutating
     const reformattedComment = JSON.parse(JSON.stringify(myComment))
     reformattedComment.author = reformattedComment.username
@@ -46,10 +53,20 @@ const insertComment = function(myComment, articleID) {
     .insert(reformattedComment)
     .into("comments")
     .returning("*")
-    .then(commentArray => commentArray[0])
+    .then(commentArray => {
+        return commentArray[0]})
 }
 
 const fetchCommentsByArticleID = function(id, sort_by, order) {
+    // console.log("here")
+    // let sort = sort_by
+    // if(sort_by) {
+    // if(sort_by !== "comment_id" || 
+    //    sort_by !== "votes" || 
+    //    sort_by !== "created_at" || 
+    //    sort_by !== "author" || 
+    //    sort_by !== "body") 
+    //    { return Promise.reject({ status: 400, msg: "Invalid sort column"}) } }
 
     return connection
     .select("comment_id", "votes", "created_at", "author", "body")
@@ -57,7 +74,10 @@ const fetchCommentsByArticleID = function(id, sort_by, order) {
     .where("article_id", "=", id.article_id)
     .returning("*")
     .orderBy(sort_by || "created_at", order || "desc")
-    .then(comments => comments);
+    .then(comments => {
+        if(!comments.length) { return Promise.reject({ status: 404, msg: "Article not found"})}
+        else return comments
+    });
 }
 
 const fetchArticles = function(sort_by, order, author, topic) {
