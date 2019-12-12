@@ -208,14 +208,14 @@ describe('/api', () => {
                     expect(output.body.msg).to.equal('Topic not found')
                 })
             })
-            // it('ERROR - GET 404 topic exists but author does not', () => {
-            //     return request(app)
-            //     .get('/api/articles?author=not_an_author&topic=cats')
-            //     .expect(404)
-            //     .then(output => {
-            //         expect(output.body.msg).to.equal('Author not found')
-            //     })
-            // })
+            it('ERROR - GET 404 topic exists but author does not', () => {
+                return request(app)
+                .get('/api/articles?author=not_an_author&topic=cats')
+                .expect(404)
+                .then(output => {
+                    expect(output.body.msg).to.equal('Author not found')
+                })
+            })
         });
     });
     describe('/api/comments', () => {

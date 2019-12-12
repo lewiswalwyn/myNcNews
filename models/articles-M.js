@@ -74,64 +74,67 @@ const fetchArticles = function(sort_by, order, author, topic) {
     .orderBy(sort_by || "created_at", order || "desc")
     .then( articles => {
 
-//         if (!articles.length) { 
-//             return checkAuthorAndTopicExist(author, topic)
-//         }
-//         else return articles
-//         })
-// }
+/////
 
         if (!articles.length) { 
-            return checkTopicExists(topic)
+            return checkAuthorAndTopicExist(author, topic)
         }
         else return articles
         })
 }
 
-const checkTopicExists = function(topic) {
-    return connection
-    .select("*")
-    .from("topics")
-    .where("slug", "=", topic)
-    .then(topics => {
-        if (!topics.length) {
-            return Promise.reject({ status: 404, msg: "Topic not found" })
-        } else { 
-            return []
-        }
-    })
-}
+/////
 
-// const checkAuthorAndTopicExist = function(author, topic) {
-//     if(author) {
-//         return connection
-//         .select("*")
-//         .from("users")
-//         .where("username", "=", author)
-//         .then(authors => {
-//             if (!authors.length) {
-//                 return Promise.reject({ status: 404, msg: "Author not found" })
-//             } else { 
-//                 return []
-//             }
+//         if (!articles.length) { 
+//             return checkTopicExists(topic)
+//         }
+//         else return articles
 //         })
-//     }
-//     if(topic) {
-//         return connection
-//         .select("*")
-//         .from("topics")
-//         .where("slug", "=", topic)
-//         .then(topics => {
-//             if (!topics.length) {
-//                 return Promise.reject({ status: 404, msg: "Topic not found" })
-//             } else { 
-//                 return []
-//             }
-//         })
-//     }
-//     else return 
 // }
 
+/////
+
+
+// const checkTopicExists = function(topic) {
+//     return connection
+//     .select("*")
+//     .from("topics")
+//     .where("slug", "=", topic)
+//     .then(topics => {
+//         if (!topics.length) {
+//             return Promise.reject({ status: 404, msg: "Topic not found" })
+//         } else { 
+//             return []
+//         }
+//     })
+// }
+
+const checkAuthorAndTopicExist = function(author, topic) {
+    
+    if(author) {
+        return connection
+        .select("*")
+        .from("users")
+        .where("username", "=", author)
+        .then(authors => {
+            if (!authors.length) {
+                return Promise.reject({ status: 404, msg: "Author not found" })
+            }
+    else if(topic) {
+        return connection
+        .select("*")
+        .from("topics")
+        .where("slug", "=", topic)
+        .then(topics => {
+            if (!topics.length) {
+                return Promise.reject({ status: 404, msg: "Topic not found" })
+            } else { 
+                return []
+            }
+        })
+    }
+}
+        )}}
 module.exports = { 
     fetchArticleByID, 
     updateArticleVotes, 
