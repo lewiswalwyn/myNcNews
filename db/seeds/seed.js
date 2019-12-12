@@ -1,5 +1,4 @@
 const { articleData, topicData, commentData, userData } = require('../data/index.js')
-//console.log(importedData)
 
 const { formatDates, formatComments, makeRefObj } = require('../utils/utils');
 

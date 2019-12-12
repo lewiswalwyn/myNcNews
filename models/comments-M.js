@@ -1,8 +1,6 @@
 const connection = require("../db/connection")
 
 const updateCommentVotes = function(upvote, id) {
-    console.log("in comment model - updateCommentVotes")
-
     return connection
     .select("*")
     .from("comments")
@@ -14,9 +12,7 @@ const updateCommentVotes = function(upvote, id) {
     });
 }
 
-const removeComment = function(id) {
-    console.log("in comment model - removeComment")
-    
+const removeComment = function(id) {    
     return connection
     .delete()
     .from("comments")

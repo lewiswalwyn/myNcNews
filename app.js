@@ -1,19 +1,23 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/apiRouter")
+const { psqlErrorHandler, baseErrorHandler, miscErrorHandler } = require("./errorHandler")
 
 app.use(express.json());
 
 
 app.use("/api", apiRouter);
 
-
+//"/*"
 //error handling
-app.use(function(err, req, res, next) {
-    if(err.status === 400) res.status(err.status).send({ msg: err.msg })
 
-    //FINAL SERVER ERROR
-    res.status(500).send({ msg: "BUMBACLART"})
-});
+app.use(psqlErrorHandler)
+
+
+app.use(miscErrorHandler);
+
+app.use(baseErrorHandler)
+
+
 
 module.exports = app;

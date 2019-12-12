@@ -190,8 +190,35 @@ describe('/api', () => {
                 })
             });
         });
+        //////////////
+        describe('/api/articles ERRORS... ish', () => {
+            it('GET 200 author + topic exist but author has no articles on the topic', () => {
+                return request(app)
+                .get('/api/articles?author=butter_bridge&topic=cats')
+                .expect(200)
+                .then(output => {
+                    expect(output.body.articles).to.deep.equal([])
+                })
+            });
+            it('ERROR - GET 404 author exists but topic does not', () => {
+                return request(app)
+                .get('/api/articles?author=butter_bridge&topic=not_a_topic')
+                .expect(404)
+                .then(output => {
+                    expect(output.body.msg).to.equal('Topic not found')
+                })
+            })
+            // it('ERROR - GET 404 topic exists but author does not', () => {
+            //     return request(app)
+            //     .get('/api/articles?author=not_an_author&topic=cats')
+            //     .expect(404)
+            //     .then(output => {
+            //         expect(output.body.msg).to.equal('Author not found')
+            //     })
+            // })
+        });
     });
-    describe.only('/api/comments', () => {
+    describe('/api/comments', () => {
         describe('/api/comments/:comment_id', () => {
             it('PATCH:200 accepts an object { incVotes : newVote } where newVote is a number that will inc or dec votes property', () => {
                 const upvote = { incVotes : 10000 }

@@ -1,7 +1,6 @@
 const { fetchArticleByID, updateArticleVotes, insertComment, fetchCommentsByArticleID, fetchArticles } = require("../models/articles-M")
 
 const getArticleByID = function(req, res, next) {
-    console.log("in articles controller - getArticleByID")
 
     fetchArticleByID(req.params)
     .then(response => {
@@ -12,7 +11,6 @@ const getArticleByID = function(req, res, next) {
 }
 
 const patchArticleVotes = function(req, res, next) {
-    console.log("in articles controller - patchArticleVotes")
 
     updateArticleVotes(req.body, req.params)
     .then(response => {
@@ -22,7 +20,6 @@ const patchArticleVotes = function(req, res, next) {
 }
 
 const postComment = function(req, res, next) {
-    console.log("in articles controller - postComment")
 
     insertComment(req.body, req.params)
     .then(comment => {
@@ -31,7 +28,6 @@ const postComment = function(req, res, next) {
 }
 
 const getCommentsByArticleID = function(req, res, next) {
-    console.log("in articles controller - getCommentsByArticleID")
 
     const sort_by = req.query.sort_by
     const order = req.query.order
@@ -43,7 +39,6 @@ const getCommentsByArticleID = function(req, res, next) {
 }
 
 const getArticles = function(req, res, next) {
-    console.log("in articles controller - getArticles")
 
     const sort_by = req.query.sort_by
     const order = req.query.order
@@ -52,8 +47,10 @@ const getArticles = function(req, res, next) {
 
     fetchArticles(sort_by, order, author, topic)
     .then(articles => {
-        res.status(200).send({articles})
+        if (articles.length < 1) res.status(200).send({ articles })
+        else res.status(200).send({articles})
     })
+    .catch(next)
 }
 
 module.exports = { getArticleByID, patchArticleVotes, postComment, getCommentsByArticleID, getArticles }

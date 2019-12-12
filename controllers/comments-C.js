@@ -1,7 +1,6 @@
 const { updateCommentVotes, removeComment } = require("../models/comments-M")
 
 const patchCommentVotes = function(req, res, next) {
-    console.log("in comments controller - patchCommentVotes")
 
     updateCommentVotes(req.body, req.params)
     .then(response => {
@@ -11,7 +10,6 @@ const patchCommentVotes = function(req, res, next) {
 }
 
 const deleteComment = function(req, res, next) {
-    console.log("in comments controller - deleteComment")
 
     removeComment(req.params)
     .then(response => res.sendStatus(204))

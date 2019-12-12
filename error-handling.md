@@ -31,11 +31,11 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 
 ### GET `/not-a-route`
 
-- Status:
+- Status: 404
 
 ### PATCH / PUT / POST / DELETE... `/api/articles` etc...
 
-- Status:
+- Status: 405
 
 ---
 
@@ -47,12 +47,12 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 
 ### GET `/api/users/:username`
 
--
+- 404
 
 ### GET `/api/articles/:article_id`
 
-- Bad `article_id` (e.g. `/dog`)
-- Well formed `article_id` that doesn't exist in the database (e.g. `/999999`)
+- Bad `article_id` (e.g. `/dog`) 400
+- Well formed `article_id` that doesn't exist in the database (e.g. `/999999`) 404
 
 ### PATCH `/api/articles/:article_id`
 
@@ -71,10 +71,10 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 ### GET `/api/articles`
 
 - Bad queries:
-  - `sort_by` a column that doesn't exist
+  - `sort_by` a column that doesn't exist 404
   - `order` !== "asc" / "desc"
-  - `author` / `topic` that is not in the database
-  - `author` / `topic` that exists but does not have any articles associated with it
+  - `author` / `topic` that is not in the database 404 
+  - `author` / `topic` that exists but does not have any articles associated with it -> 200 [] author/topic exist but author/topic has no articles
 
 ### PATCH `/api/comments/:comment_id`
 

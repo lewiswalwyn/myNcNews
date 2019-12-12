@@ -1,7 +1,6 @@
 const connection = require("../db/connection")
 
 const fetchArticleByID = function(id) {
-    console.log('in articles model - fetchArticleByID')
 
     return connection
     .select("*")
@@ -23,7 +22,6 @@ const fetchArticleByID = function(id) {
 }
 
 const updateArticleVotes = function(upvote, id) {
-    console.log("in articles model - updateArticleVotes")
 
     return connection
     .select("*")
@@ -37,7 +35,6 @@ const updateArticleVotes = function(upvote, id) {
 }
 
 const insertComment = function(myComment, articleID) {
-    console.log("in articles model - insertComment")
     
     //formats comment without mutating
     const reformattedComment = JSON.parse(JSON.stringify(myComment))
@@ -53,7 +50,6 @@ const insertComment = function(myComment, articleID) {
 }
 
 const fetchCommentsByArticleID = function(id, sort_by, order) {
-    console.log("in articles model - fetchCommentsByArticleID")
 
     return connection
     .select("comment_id", "votes", "created_at", "author", "body")
@@ -65,8 +61,6 @@ const fetchCommentsByArticleID = function(id, sort_by, order) {
 }
 
 const fetchArticles = function(sort_by, order, author, topic) {
-    console.log("in articles model - fetchArticles")
-
     return connection
     .select("articles.author", "articles.title", "articles.article_id", "articles.topic", "articles.created_at", "articles.votes")
     .from("articles")
@@ -78,9 +72,65 @@ const fetchArticles = function(sort_by, order, author, topic) {
         if (topic) query.where( "articles.topic", "=", topic)
       })
     .orderBy(sort_by || "created_at", order || "desc")
-    .returning("*")
+    .then( articles => {
 
+//         if (!articles.length) { 
+//             return checkAuthorAndTopicExist(author, topic)
+//         }
+//         else return articles
+//         })
+// }
+
+        if (!articles.length) { 
+            return checkTopicExists(topic)
+        }
+        else return articles
+        })
 }
+
+const checkTopicExists = function(topic) {
+    return connection
+    .select("*")
+    .from("topics")
+    .where("slug", "=", topic)
+    .then(topics => {
+        if (!topics.length) {
+            return Promise.reject({ status: 404, msg: "Topic not found" })
+        } else { 
+            return []
+        }
+    })
+}
+
+// const checkAuthorAndTopicExist = function(author, topic) {
+//     if(author) {
+//         return connection
+//         .select("*")
+//         .from("users")
+//         .where("username", "=", author)
+//         .then(authors => {
+//             if (!authors.length) {
+//                 return Promise.reject({ status: 404, msg: "Author not found" })
+//             } else { 
+//                 return []
+//             }
+//         })
+//     }
+//     if(topic) {
+//         return connection
+//         .select("*")
+//         .from("topics")
+//         .where("slug", "=", topic)
+//         .then(topics => {
+//             if (!topics.length) {
+//                 return Promise.reject({ status: 404, msg: "Topic not found" })
+//             } else { 
+//                 return []
+//             }
+//         })
+//     }
+//     else return 
+// }
 
 module.exports = { 
     fetchArticleByID, 
