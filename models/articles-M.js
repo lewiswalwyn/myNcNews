@@ -104,7 +104,7 @@ const fetchArticles = function(sort_by, order, author, topic) {
         if (author) query.where( "articles.author", "=", author );
         if (topic) query.where( "articles.topic", "=", topic)
       })
-    .orderBy(isValidSortColumn(), order || "desc")
+    .orderBy(isValidSortColumn(sort_by), order || "desc")
     .then( articles => {
         if (!articles.length) { 
             return checkAuthorAndTopicExist(author, topic)
