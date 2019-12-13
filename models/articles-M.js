@@ -67,15 +67,28 @@ const fetchCommentsByArticleID = function(id, sort_by, order) {
     //    sort_by !== "author" || 
     //    sort_by !== "body") 
     //    { return Promise.reject({ status: 400, msg: "Invalid sort column"}) } }
+    
+    //isValidSortColumn(sort_by)
 
     return connection
     .select("comment_id", "votes", "created_at", "author", "body")
     .from("comments")
     .where("article_id", "=", id.article_id)
     .returning("*")
-    .orderBy(sort_by || "created_at", order || "desc")
+    .orderBy(isValidSortColumn(sort_by), order || "desc")
     .then(comments => {
-        if(!comments.length) { return Promise.reject({ status: 404, msg: "Article not found"})}
+        if(!comments.length) {
+            return connection
+            .select("*")
+            .from("articles")
+            .where("article_id", "=", id.article_id)
+            .then(article => {
+                // if article exists but has no comments
+            if(article.length) { return [] }
+                // else if article does not exist
+            else { return Promise.reject({ status: 404, msg: "Article not found"})}
+        })
+        }
         else return comments
     });
 }
@@ -93,10 +106,7 @@ const fetchArticles = function(sort_by, order, author, topic) {
       })
     .orderBy(sort_by || "created_at", order || "desc")
     .then( articles => {
-/////
-
         if (!articles.length) { 
-
             return checkAuthorAndTopicExist(author, topic)
         }
         else return articles
@@ -104,7 +114,6 @@ const fetchArticles = function(sort_by, order, author, topic) {
 }
 
 const checkAuthorAndTopicExist = function(author, topic) {
-
     if(author) {
         return connection
         .select("*")
@@ -125,7 +134,7 @@ const checkAuthorAndTopicExist = function(author, topic) {
                         return []
                     }
                 })
-                }
+            }
         }
     )} ///// LOOOOOOOOOL but it works tho
     else if(topic) {
@@ -140,8 +149,16 @@ const checkAuthorAndTopicExist = function(author, topic) {
                 return []
             }
         })
-        }
+    }
 }
+
+const isValidSortColumn = function(sort_by) {
+    let column = ["comment_id", "votes", "created_at", "author", "body"].find(match => match === sort_by);
+    if(column === undefined) column = "created_at";
+
+    return column;
+}
+
 module.exports = { 
     fetchArticleByID, 
     updateArticleVotes, 

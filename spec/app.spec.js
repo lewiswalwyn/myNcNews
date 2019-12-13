@@ -137,6 +137,11 @@ describe('/api', () => {
                     expect(output.body.comments[0]).not.to.have.key("article_id")
                 })
             }); ///// what if article has no comments what then huh?
+            it('GET 200 serves empty array when article exists but has no comments', () => {
+                return request(app)
+                .get('/api/articles/2/comments')
+                .expect(200)
+            })
             it('GET: 200 sorted by votes - defaults to descending order', () => {
                 return request(app)
                 .get('/api/articles/1/comments?sort_by=votes') 
@@ -233,6 +238,11 @@ describe('/api', () => {
                     expect(output.body.articles).to.be.ascendingBy("comment_count")
                 })
             });
+            it('GET 200 - invalid sort by column', () => {
+                return request(app)
+                .get('/api/articles?sort_by=not-a-column')
+                .expect(200)
+            });
             it('GET: 200 filters by author when given username in query', () => {
                 return request(app)
                 .get('/api/articles?author=butter_bridge')
@@ -289,11 +299,11 @@ describe('/api', () => {
                 })
             })
 
-            // it('ERROR - GET 400 - invalid sort by column', () => {
-            //     return request(app)
-            //     .get('/api/articles/1/comments?sort_by=not-a-valid-column')
-            //     .expect(400)
-            // });
+            it('GET 200 - invalid sort by column', () => {
+                return request(app)
+                .get('/api/articles/1/comments?sort_by=not-a-valid-column')
+                .expect(200)
+            });
 
             it('ERROR - PATCH 405 method not allowed', () => {
                 return request(app)
