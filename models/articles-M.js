@@ -134,7 +134,7 @@ const checkAuthorAndTopicExist = function(author, topic) {
                         return []
                     }
                 })
-            }
+            } else return [];
         }
     )} ///// LOOOOOOOOOL but it works tho
     else if(topic) {
@@ -149,7 +149,7 @@ const checkAuthorAndTopicExist = function(author, topic) {
                 return []
             }
         })
-    } else return [];
+    } 
 }
 
 const isValidSortColumn = function(sort_by) {
