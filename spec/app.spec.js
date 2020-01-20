@@ -268,7 +268,7 @@ describe('/api', () => {
                 .get("/api/articles?author=lurker")
                 .expect(200)
                 .then(output => {
-                    expect(output.body).to.deep.equal([])
+                    expect(output.body).to.deep.equal({articles: []})
                 })
             });
         });
