@@ -153,7 +153,7 @@ const checkAuthorAndTopicExist = function(author, topic) {
 }
 
 const isValidSortColumn = function(sort_by) {
-    let column = ["comment_id", "votes", "created_at", "author", "body"].find(match => match === sort_by);
+    let column = ["comment_id", "votes", "created_at", "author", "body", "comment_count"].find(match => match === sort_by);
     if(column === undefined) column = "created_at";
 
     return column;
